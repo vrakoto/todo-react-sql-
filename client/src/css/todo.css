@@ -36,3 +36,7 @@
 .highlight {
     color: #ff0000;
 }
+
+.selectedTodo {
+    background-color: blue !important;
+}

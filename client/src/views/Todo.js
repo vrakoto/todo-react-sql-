@@ -5,12 +5,12 @@ import '../css/todo.css'
 
 function Todo() {
     const [highlight, setHighlight] = useState(false)
-    const [todo, setTodo] = useState({ titre: '', description: '', priorite: '' })
+    const [newTodo, setNewTodo] = useState({ titre: '', description: '', priorite: '' })
     const [refreshData, setRefreshData] = useState(0)
 
     // State pour consultation et modification d'un TODO
-    const [dt, setDT] = useState({})
-    const [currentTodo, setCurrentTodo] = useState({})
+    const [leTodo, setLeTodo] = useState({})
+    const [edititingTodo, setEditingTodo] = useState({})
 
     const [mesTodos, setMesTodos] = useState([])
     const [message, setMessage] = useState({})
@@ -24,7 +24,7 @@ function Todo() {
     }, [refreshData])
 
     useEffect(() => {
-        if (refreshData != 0) {
+        if (refreshData !== 0) {
             setHighlight(true)
             setTimeout(() => {
                 setHighlight(false)
@@ -32,25 +32,21 @@ function Todo() {
         }
     }, [refreshData])
 
+    useEffect(() => {
+        if (leTodo) {
+            console.log();
+        }
+    }, [leTodo])
+
     const BlinkingComponent = ({ highlighting }) => (
         <div className={`element ${highlighting ? " highlight" : ""}`}>Watch Me</div>
     );
 
-    const editTodo = async () => {
-        axios.post('/user/modifierTodo', { id: dt.id, currentTodo }).then(() => {
-            setRefreshData(oldKey => oldKey + 1)
-        }).catch((err) => {
-            console.log(err);
-            setMessage({ error: "Probleme modification todo" });
-        })
-    }
-
-
     const addTodo = (e) => {
         e.preventDefault();
 
-        if (todo.titre !== '' && todo.description !== '' && todo.priorite !== '') {
-            axios.post('/user/todo', todo).then((msg) => {
+        if (newTodo.titre !== '' && newTodo.description !== '' && newTodo.priorite !== '') {
+            axios.post('/user/todo', newTodo).then((msg) => {
                 if (msg.data.error) {
                     setMessage({ error: msg.data.error })
                 } else if (msg.data.success) {
@@ -65,10 +61,19 @@ function Todo() {
         }
     }
 
+    const editTodo = async () => {
+        axios.post('/user/modifierTodo', { id: leTodo.datas.id, edititingTodo }).then(() => {
+            setRefreshData(oldKey => oldKey + 1)
+        }).catch((err) => {
+            console.log(err);
+            setMessage({ error: "Probleme modification todo" });
+        })
+    }
+
     const supprimer = async (id) => {
         axios.post('/user/deleteTodo', { id }).then((msg) => {
             if (msg.data.success) {
-                setDT({})
+                setLeTodo({})
                 setRefreshData(oldKey => oldKey + 1)
             }
         }).catch((err) => {
@@ -76,9 +81,10 @@ function Todo() {
         })
     }
 
-    const detailTodo = async (id) => {
+    const detailTodo = async (id, e) => {
+        const currentCard = e.currentTarget
         axios.get('/user/todo', { params: { id: id } }).then((datas) => {
-            setDT(datas.data)
+            setLeTodo({currentCard, datas: datas.data})
         }).catch((err) => {
             setMessage({ error: "Probleme récupération todo" });
         })
@@ -86,12 +92,12 @@ function Todo() {
 
     const handleChange = (e) => {
         const { name, value } = e.target
-        setTodo({ ...todo, [name]: value })
+        setNewTodo({ ...newTodo, [name]: value })
     }
 
     const handleChangeEditTodo = (e) => {
         const { name, value } = e.target
-        setCurrentTodo({ ...currentTodo, [name]: value })
+        setEditingTodo({ ...edititingTodo, [name]: value })
     }
 
     return (
@@ -119,7 +125,7 @@ function Todo() {
                     <h1 className="titleCard">Mes TODO</h1>
                     <div className="lesTodos">
                         {mesTodos.map((value, key) => (
-                            <div className="leTodo" key={key} onClick={() => detailTodo(value.id)}>
+                            <div className={`leTodo ${leTodo.datas.id === value.id ? " selectedTodo" : ""}`} name={value.id} key={key} onClick={(e) => detailTodo(value.id, e)}>
                                 <h3>{value.id}</h3>
                                 <h3>{value.titre}</h3>
                                 <h3 className="priorite">{value.priorite}</h3>
@@ -130,14 +136,14 @@ function Todo() {
                 </div>
             </div>
 
-            {dt && Object.keys(dt).length > 0 ? (
-                <div className="center" key={dt.id}>
+            {leTodo.datas && Object.keys(leTodo).length > 0 ? (
+                <div className="center" key={leTodo.datas.id}>
                     <div className="main">
-                        <h1 className="titleCard">TODO N°{dt.id}</h1>
+                        <h1 className="titleCard">TODO N°{leTodo.datas.id}</h1>
 
-                        <input type="text" defaultValue={dt.titre} name="titre" onChange={handleChangeEditTodo} />
-                        <textarea defaultValue={dt.description} name="description" onChange={handleChangeEditTodo}></textarea>
-                        <PrioriteSelector nameFunction={handleChangeEditTodo} defaultSelection={dt.priorite} />
+                        <input type="text" defaultValue={leTodo.datas.titre} name="titre" onChange={handleChangeEditTodo} />
+                        <textarea defaultValue={leTodo.datas.description} name="description" onChange={handleChangeEditTodo}></textarea>
+                        <PrioriteSelector nameFunction={handleChangeEditTodo} defaultSelection={leTodo.datas.priorite} />
 
                         <button type="button" onClick={() => editTodo()}>Modifier</button>
                     </div>
