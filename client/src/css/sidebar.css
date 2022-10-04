@@ -1,0 +1,22 @@
+aside {
+    padding: 25px 35px;
+    background-color: #fcfcfc;
+    width: 500px;
+    height: 100vh;
+}
+
+aside .active {
+    background-color: #eeeeee;
+    font-weight: bold;
+}
+
+aside .item {
+    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
+    display: block;
+}
+
+aside ul {
+    list-style: none;
+}

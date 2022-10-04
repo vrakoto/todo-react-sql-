@@ -1,34 +1,35 @@
-require('./db/testconnection').connect()
+require('dotenv').config();
 const express = require('express');
-const app = express(),
-      bodyParser = require("body-parser"),
-      port = 4000,
-      indexRouter = require('./routes/index'),
-      userRouter = require('./routes/user'),
-      session = require('express-session'),
-      passport = require('passport')
-
-app.use(bodyParser.json());
-
-// Passport Config
-require('./config/passport')(passport);
+const app = express();
+const session = require('express-session')
+const bodyParser = require("body-parser");
+const cors = require('cors');
+const port = process.env.PORT;
+const front_host = process.env.API_FRONT;
+const visitorRouter = require('./routes/visitor');
+const userRouter = require('./routes/user');
 
 app.use(session({
-    secret: 'mySecret',
+    secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true,
-}));
+}))
 
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
+app.use((req, res, next) => {
+    if (!req.session.login) {
+       req.session.login = '';
+    }
+    if (!req.session.todos) {
+        req.session.todos = []
+    }
+    next();
+ });
 
-/* app.use(function(req, res, next) {
-    res.locals.auth = req.user;
-}); */
+app.use(bodyParser.json());
+app.use(cors({ credentials: true, origin: front_host }));
 
 // Routes
-app.use('/', indexRouter);
+app.use('/', visitorRouter);
 app.use('/user', userRouter);
 
 app.listen(port, () => {

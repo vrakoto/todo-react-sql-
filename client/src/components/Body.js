@@ -1,10 +1,13 @@
-import '../css/home.css'
+import '../css/main.css'
+import SideBar from './SideBar'
 
 function Body(props) {
+    const { children } = props
     return (
-        <>
-            {props.children}
-        </>
+        <div className="d-flex">
+            <SideBar />
+            {children}
+        </div>
     )
 }
 

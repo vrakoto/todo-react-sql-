@@ -1,63 +1,33 @@
-const passport = require('passport');
 const express = require('express');
 const router = express.Router();
-const functions = require('../config/function');
 
-const Todo = require('../models/Todo');
-
-router.post('/todo', async (req, res) => {
-    const { titre, description, priorite } = req.body
-    await Todo.create({
-        titre,
-        description,
-        priorite
-    }).then((success) => {
-        if (success) return res.send({success: 'Todo créé !'})
-    }).catch((error) => {
-        if (error) return res.send({error: "Echec lors de la tentative de création de votre compte"})
-    })
+router.get('/todos', (req, res) => {
+    return res.send(req.session.todos)
 });
 
-router.get('/todos', async (req, res) => {
-    await Todo.findAll().then((datas) => {
-        return res.json(datas)
-    }).catch((error) => {
-        if (error) return res.send({error: "Echec lors de la tentative de récupération de vos todos"})
-    })
+router.post('/todo', (req, res) => {
+    const todo = { titre, description, priorite } = req.body
+    const lesTodos = req.session.todos
+    lesTodos.push(todo)
+
+    return res.send('ok')
 });
 
-router.get('/todo', async (req, res) => {
-    const {id} = req.query
-    await Todo.findByPk(id).then((datas) => {
-        return res.json(datas)
-    }).catch((error) => {
-        if (error) return res.send({error: `Echec lors de la tentative de récupération du todo n°${id}`})
-    })
+router.post('/resetTodos', (req, res) => {
+    req.session.todos = []
+    return res.send('ok')
 });
 
+router.post('/deleteTodo', (req, res) => {
+    const { leTodo } = req.body
+    req.session.todos = req.session.todos.filter((todo, key) => key !== leTodo);
 
-router.post('/modifierTodo', async (req, res) => {
-    await Todo.update(
-        req.body.currentTodo,
-        { where: {id: req.body.id} }
-      ).then((success) => {
-        if (success) return res.send({success: 'Todo modifié !'})
-    }).catch((error) => {
-        console.log(error);
-        if (error) return res.send({error: `Echec lors de la tentative de modification du todo n°${id}`})
-    })
+    return res.send('ok')
 });
 
-router.post('/deleteTodo', async (req, res) => {
-    await Todo.destroy({
-        where: {
-            id: req.body.id
-        }
-    }).then(() => {
-        return res.send({success: 'deleted!'})
-    }).catch((error) => {
-        if (error) return res.send({error: "Echec lors de la tentative de suppression du todo"})
-    })
+router.post('/logout', (req, res) => {
+    req.session.login = ''
+    return res.send('ok')
 });
 
 module.exports = router;
