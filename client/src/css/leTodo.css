@@ -1,0 +1,20 @@
+.modalEdit {
+    background-color: #000;
+    border-radius: 10px;
+    border: 1px solid #FFF;
+    color: #FFF;
+}
+
+
+.leTodo_container {
+    background-color: transparent;
+    color: #FFF;
+    border: 1px solid grey;
+    transition: transform .2s ease-in-out;
+}
+.leTodo_container:hover {
+    border: 1px solid #FFF;
+    transform: scale(1.03);
+    cursor: pointer;
+}
+

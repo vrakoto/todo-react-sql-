@@ -1,30 +1,17 @@
 require('dotenv').config();
+// const { forwardAccessWhileConnected, validateToken } = require('./functions/func');
+const { sequelize } = require('./db/config');
 const express = require('express');
 const app = express();
-const session = require('express-session')
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const cors = require('cors');
 const port = process.env.PORT;
 const front_host = process.env.API_FRONT;
 const visitorRouter = require('./routes/visitor');
 const userRouter = require('./routes/user');
 
-app.use(session({
-    secret: 'keyboard cat',
-    resave: false,
-    saveUninitialized: true,
-}))
-
-app.use((req, res, next) => {
-    if (!req.session.login) {
-       req.session.login = '';
-    }
-    if (!req.session.todos) {
-        req.session.todos = []
-    }
-    next();
- });
-
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(cors({ credentials: true, origin: front_host }));
 

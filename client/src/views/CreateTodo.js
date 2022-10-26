@@ -45,9 +45,9 @@ function Todo() {
 
             ) : ''}
 
-            <h1>Créer un TODO</h1>
+            <h1 className="titlePage">Créer un TODO</h1>
 
-            <form className="form-group" method="post" onSubmit={handleVerification}>
+            <form className="customForm form-group" method="post" onSubmit={handleVerification}>
                 <div className="mt-3">
                     <input type="text" autoFocus name="titre" className="form-control" id="titre" placeholder="Insérer un titre" onChange={handleChange} />
                 </div>
@@ -58,7 +58,7 @@ function Todo() {
                 <div className="mt-3">
                     <label htmlFor="priorite" className="form-label mb-0">Sélectionnez une prioritée</label>
                     <select className="form-control" defaultValue="Moyenne" name="priorite" id="priorite" onChange={handleChange}>
-                        <option value="Haute">Haute</option>
+                        <option value="Importante">Importante</option>
                         <option value="Moyenne">Moyenne</option>
                         <option value="Basse">Basse</option>
                     </select>
@@ -70,7 +70,6 @@ function Todo() {
 
             </form>
 
-            <hr />
         </div>
     )
 }

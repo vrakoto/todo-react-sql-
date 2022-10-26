@@ -1,45 +1,34 @@
 import '../css/sidebar.css'
-import { useNavigate, NavLink } from 'react-router-dom'
-import Api from './Api';
+
 import { useContext, useEffect, useState } from 'react';
+import { faPlus, faListCheck, faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
+
 import Connected from './context/Connected';
-import RefreshData from './context/RefreshData';
 import Todos from './context/Todos';
 
+import Item from './SideBar/Item';
+// import Priorite from './SideBar/Priorite';
+
+import Reset from './SideBar/Reset';
+import Deconnexion from './SideBar/Deconnexion';
+
 function SideBar() {
-    const updatingData = useContext(RefreshData)
-    const nbTodos = useContext(Todos)
+    const [enableDropdown, setEnableDropdown] = useState(false)
+    const lesTodos = useContext(Todos)
+    const nbLesTodosImportantes = lesTodos.filter((leTodo) => leTodo.priorite.toLowerCase() === 'importante')
+    const nbLesTodosMoyennes = lesTodos.filter((leTodo) => leTodo.priorite.toLowerCase() === 'moyenne')
+    const nbLesTodosBasses = lesTodos.filter((leTodo) => leTodo.priorite.toLowerCase() === 'basse')
 
     const [error, setError] = useState('')
-    const navigate = useNavigate();
-    const { isConnected, setIsConnected } = useContext(Connected);
+    const { isConnected } = useContext(Connected);
 
-    const Item = ({ titre, redirect }) => (
-        <NavLink to={redirect} className={`item ${(isActive) => (isActive ? 'active' : '')}`}>{titre}</NavLink>
-    )
-
-    const reset = async () => {
-        if (nbTodos.length > 0) { // evite le spam inutile par l'utilisateur
-            Api.post('/user/resetTodos').then((msg) => {
-                if (msg.data) {
-                    updatingData(prevState => prevState + 1)
-                }
-            }).catch((error) => {
-                setError("Erreur interne rencontrée lors de la tentative de réinitialisation des TODOS")
-            })
+    const triggerDropdown = () => {
+        if (enableDropdown) {
+            setEnableDropdown(false)
+        } else {
+            setEnableDropdown(true)
         }
-    };
-
-    const deconnexion = async () => {
-        Api.post('/user/logoutaing').then((msg) => {
-            if (msg) {
-                setIsConnected('')
-                return navigate('/')
-            }
-        }).catch((error) => {
-            setError("Erreur interne rencontrée lors de la tentative de déconnexion")
-        })
-    };
+    }
 
     useEffect(() => {
         if (error !== '') {
@@ -53,32 +42,32 @@ function SideBar() {
         <>
             <aside>
 
-                {(isConnected === '') ?
-                    <Item titre="Connexion" redirect="/" />
-                :
-                    <>
-                        <Item titre="Créer un TODO" redirect="/createTodo" />
-                        <Item titre={`Mes TODOS (${nbTodos.length})`} redirect="/mesTodos" />
+                <div className="menu">
+                    {(isConnected === true) ?
+                        <>
+                            <Item titre={`Mes TODOS (${lesTodos.length})`} redirect="/" icon={faListCheck} />
+                            <Item titre="Créer un TODO" redirect="/createTodo" icon={faPlus} />
 
-                        <hr />
+                            <Item titre="Priorité" icon={faScaleBalanced} onClick={triggerDropdown} />
+                            <ul className={`dropdown ${!enableDropdown ? 'd-none' : ''}`}>
+                                <Item titre={`Importante (${nbLesTodosImportantes.length})`} redirect="/prioritee-importante" />
+                                <Item titre={`Moyenne (${nbLesTodosMoyennes.length})`} redirect="/prioritee-moyenne" />
+                                <Item titre={`Basse (${nbLesTodosBasses.length})`} redirect="/prioritee-basse" />
+                            </ul>
 
-                        <h5 className="item">Priorités</h5>
-                        <ul className="dropdown">
-                            <li>Importante</li>
-                            <li>Moyenne</li>
-                            <li>Basse</li>
-                        </ul>
-
-                        <hr />
-
-                        <div onClick={reset}>Réinitialiser</div>
-                        <div onClick={deconnexion}>Déconnexion</div>
-
-                        <hr />
-                    </>
-                }
-
-                <i className="mt-5">{(isConnected === '') ? '' : `Connecté en tant que : ${isConnected}`}</i>
+                            <div className="bottom">
+                                <Reset setError={setError} />
+                                <Deconnexion setError={setError} />
+                                <i className="mt-5">{`Connecté en tant que : ${isConnected}`}</i>
+                            </div>
+                        </>
+                        :
+                        <>
+                            <Item titre="Connexion" redirect="/" />
+                            <Item titre="Inscription" redirect="/inscription" />
+                        </>
+                    }
+                </div>
 
                 {error ? (
                     <div className="mt-3 alert alert-danger text-center">{error}</div>

@@ -1,7 +1,43 @@
+html, body {
+    height: 100%;
+}
+
 body {
-    /* background-color: #181820; */
+    background-color: #363636;
 }
 
 .underlined {
     text-decoration: underline;
+}
+
+.form-error {
+
+}
+
+.titlePage {
+    color: #FFF;
+}
+
+
+
+.d-flex {
+    display: flex;
+    /* flex-wrap: wrap; */
+}
+.content {
+    margin-left: 50px;
+}
+
+
+.customForm input {
+    margin-bottom: 10px;
+    background-color: transparent;
+    color: #FFF !important;
+}
+.customForm input:focus {
+    background-color: unset !important;
+}
+
+.customForm .form-label {
+    color: #FFF;
 }

@@ -6,16 +6,29 @@ router.get('/todos', (req, res) => {
 });
 
 router.post('/todo', (req, res) => {
-    const todo = { titre, description, priorite } = req.body
-    const lesTodos = req.session.todos
-    lesTodos.push(todo)
+    req.session.key++
+    let key = req.session.key
 
+    const leTodo = { id: key, titre: req.body.titre, description: req.body.description, priorite: req.body.priorite }
+    const lesTodos = req.session.todos
+
+    lesTodos.push(leTodo)
     return res.send('ok')
 });
 
 router.post('/resetTodos', (req, res) => {
     req.session.todos = []
     return res.send('ok')
+});
+
+router.post('/editTodo', (req, res) => {
+    const { id, titre, description, priorite } = req.body
+
+    req.session.todos.forEach(leTodo => {
+        if (leTodo.id === id) {
+            console.log(req.session.todos);
+        }
+    });
 });
 
 router.post('/deleteTodo', (req, res) => {
@@ -26,8 +39,8 @@ router.post('/deleteTodo', (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-    req.session.login = ''
-    return res.send('ok')
+    res.clearCookie('access-token')
+    return res.send('logout')
 });
 
 module.exports = router;

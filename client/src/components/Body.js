@@ -1,4 +1,5 @@
 import '../css/main.css'
+import '../css/animation.css'
 import SideBar from './SideBar'
 
 function Body(props) {
@@ -6,7 +7,9 @@ function Body(props) {
     return (
         <div className="d-flex">
             <SideBar />
-            {children}
+            <div className="content">
+                {children}
+            </div>
         </div>
     )
 }

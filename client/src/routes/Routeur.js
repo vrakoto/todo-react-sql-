@@ -7,8 +7,11 @@ import 'bootstrap/dist/js/bootstrap.bundle'
 import Body from '../components/Body'
 
 import Connexion from '../views/Connexion'
+import Inscription from '../views/Inscription'
+
 import CreateTodo from '../views/CreateTodo'
 import MesTodos from '../views/MesTodos'
+import Prioriter from '../views/Prioriter'
 
 import NotFound from '../views/NotFound'
 
@@ -24,7 +27,7 @@ function Routeur() {
                 setIsConnected(datas.data)
             }).catch((error) => {
                 console.log(error);
-                setIsConnected('')
+                setIsConnected(false)
             })
         }
         getLogin()
@@ -56,13 +59,20 @@ function Routeur() {
                     <Todos.Provider value={todos}>
                         <Body>
                             <Routes>
-                                {(isConnected === '') ? (
-                                    <Route path="/" element={<Connexion />} />
+                                {(isConnected === true) ? (
+                                    <>
+                                        <Route path="/" element={<MesTodos />} />
+                                        <Route path="/createTodo" element={<CreateTodo />} />
+
+                                        <Route path="/prioritee-importante" element={<Prioriter type="importante" />} />
+                                        <Route path="/prioritee-moyenne" element={<Prioriter type="moyenne" />} />
+                                        <Route path="/prioritee-basse" element={<Prioriter type="basse" />} />
+                                    </>
                                 ) :
-                                <>
-                                    <Route path="/createTodo" element={<CreateTodo />} />
-                                    <Route path="/mesTodos" element={<MesTodos />} />
-                                </>
+                                    <>
+                                        <Route path="/" element={<Connexion />} />
+                                        <Route path="/inscription" element={<Inscription />} />
+                                    </>
                                 }
                                 
                                 <Route path="*" element={<NotFound />} />
