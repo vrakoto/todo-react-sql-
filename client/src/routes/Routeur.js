@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useEffect, createContext } from 'react'
+import React, {useState, useMemo } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -11,23 +11,26 @@ import Inscription from '../views/Inscription'
 
 import CreateTodo from '../views/CreateTodo'
 import MesTodos from '../views/MesTodos'
-import Prioriter from '../views/Prioriter'
 
 import NotFound from '../views/NotFound'
 
 import Api from '../components/Api'
 import Connected from '../components/context/Connected';
-import Todos from '../components/context/Todos'
 import RefreshData from '../components/context/RefreshData'
 
 function Routeur() {
+    const [refresh, setRefresh] = useState(0)
+
     const [isConnected, setIsConnected] = useState(async () => {
         function getLogin() {
             Api.get('/login').then((datas) => {
-                setIsConnected(datas.data)
+                if (datas.status === 200) {
+                    setIsConnected(datas.data)
+                }
             }).catch((error) => {
-                console.log(error);
-                setIsConnected(false)
+                if (error.request.status !== 403) {
+                    console.log(error);
+                }
             })
         }
         getLogin()
@@ -38,47 +41,32 @@ function Routeur() {
         [isConnected]
     )
 
-    const [refresh, setRefresh] = useState(0)
-    const [todos, setTodos] = useState([])
-
-    useEffect(() => {
-        async function getTodos() {
-            Api.get('/user/todos').then((datas) => {
-                setTodos(datas.data)
-            }).catch((error) => {
-                console.log(error);
-            })
-        }
-        getTodos()
-    }, [refresh])
+    const updatingData = useMemo(() =>
+        ({ refresh, setRefresh }),
+        [refresh]
+    )
 
     return (
         <BrowserRouter>
             <Connected.Provider value={connection} >
-                <RefreshData.Provider value={setRefresh}>
-                    <Todos.Provider value={todos}>
-                        <Body>
-                            <Routes>
-                                {(isConnected === true) ? (
-                                    <>
-                                        <Route path="/" element={<MesTodos />} />
-                                        <Route path="/createTodo" element={<CreateTodo />} />
-
-                                        <Route path="/prioritee-importante" element={<Prioriter type="importante" />} />
-                                        <Route path="/prioritee-moyenne" element={<Prioriter type="moyenne" />} />
-                                        <Route path="/prioritee-basse" element={<Prioriter type="basse" />} />
-                                    </>
-                                ) :
-                                    <>
-                                        <Route path="/" element={<Connexion />} />
-                                        <Route path="/inscription" element={<Inscription />} />
-                                    </>
-                                }
-                                
-                                <Route path="*" element={<NotFound />} />
-                            </Routes>
-                        </Body>
-                    </Todos.Provider>
+                <RefreshData.Provider value={updatingData}>
+                    <Body>
+                        <Routes>
+                            {(isConnected) ? (
+                                <>
+                                    <Route path="/" element={<MesTodos />} />
+                                    <Route path="/createTodo" element={<CreateTodo />} />
+                                </>
+                            ) :
+                                <>
+                                    <Route path="/" element={<Connexion />} />
+                                    <Route path="/inscription" element={<Inscription />} />
+                                </>
+                            }
+                            
+                            <Route path="*" element={<NotFound />} />
+                        </Routes>
+                    </Body>
                 </RefreshData.Provider>
             </Connected.Provider>
         </BrowserRouter>

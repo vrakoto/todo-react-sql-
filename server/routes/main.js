@@ -2,14 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 
-const { createTokens } = require("../functions/func");
+const { createTokens, getAuthenticated } = require("../functions/func");
 
 const Utilisateur = require('../models/Utilisateur');
-const Todo = require('../models/Todo');
-
-router.get('/login', (req, res) => {
-    return res.send((req.cookies["access-token"]) ? true : false);
-});
 
 // Connexion
 router.post('/connexion', async (req, res) => {
@@ -25,12 +20,12 @@ router.post('/connexion', async (req, res) => {
                     maxAge: 60 * 60 * 24 * 30 * 1000,
                     httpOnly: true,
                 });
-                return res.send({ success: "Authentification réussie !" });
+                return res.send({ success: identifiant });
             }
             return res.send({ error: "Authentification incorrect" });
         });
     }).catch((e) => {
-        return res.send({ error: "Erreur interne lors de la récupération des utilisateurs" });
+        return res.status(500).send("Erreur interne lors de la récupération des utilisateurs")
     })
 });
 
@@ -44,12 +39,12 @@ router.post('/inscription', async (req, res) => {
                 identifiant,
                 mdp: hash
             }).then((success) => {
-                if (success) return res.send({success: 'Utilisateur créé !'})
+                if (success) return res.send("Utilisateur créé")
             }).catch((error) => {
                 if (error.original.sqlState === "23000") {
-                    return res.send({error: "Cet identifiant a déjà été prit"})
+                    return res.status(409).send("Cet identifiant a déjà été prit")
                 } else {
-                    return res.send({error: "Echec lors de la tentative de création de votre compte"})
+                    return res.status(500).send("Echec lors de la tentative de création de votre compte")
                 }
             })
         });

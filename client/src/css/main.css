@@ -10,10 +10,6 @@ body {
     text-decoration: underline;
 }
 
-.form-error {
-
-}
-
 .titlePage {
     color: #FFF;
 }
@@ -22,10 +18,16 @@ body {
 
 .d-flex {
     display: flex;
-    /* flex-wrap: wrap; */
 }
 .content {
     margin-left: 50px;
+}
+
+
+select {
+    background-color: #363636 !important;
+    color: #FFF !important;
+    cursor: pointer;
 }
 
 

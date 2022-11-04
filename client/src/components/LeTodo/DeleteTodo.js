@@ -1,17 +1,16 @@
 import { useContext } from "react"
 import Api from "../Api"
-import RefreshData from "../context/RefreshData"
+import Refresh from "../context/RefreshData"
 
 function DeleteTodo({id, setError}) {
-    const updatingData = useContext(RefreshData)
+    const { setRefresh } = useContext(Refresh)
 
     const deleteTodo = async () => {
         Api.post('/user/deleteTodo', {leTodo: id}).then((msg) => {
-            if (msg.data) updatingData(prev => prev + 1)
+            if (msg.status === 200) setRefresh(prev => prev + 1)
         }).catch((error) => {
-            setError("Erreur interne rencontrée lors de la tentative de suppression d'un todo")
+            setError(error.request.response)
         })
-        console.log(id);
     }
 
     return (

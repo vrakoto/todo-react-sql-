@@ -1,23 +1,17 @@
-import '../css/sidebar.css'
+import './sidebar.css'
 
 import { useContext, useEffect, useState } from 'react';
-import { faPlus, faListCheck, faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faListCheck } from "@fortawesome/free-solid-svg-icons";
 
-import Connected from './context/Connected';
-import Todos from './context/Todos';
+import Connected from '../context/Connected';
 
-import Item from './SideBar/Item';
-// import Priorite from './SideBar/Priorite';
+import Item from './Item';
 
-import Reset from './SideBar/Reset';
-import Deconnexion from './SideBar/Deconnexion';
+import Reset from './Reset';
+import Deconnexion from './Deconnexion';
 
 function SideBar() {
     const [enableDropdown, setEnableDropdown] = useState(false)
-    const lesTodos = useContext(Todos)
-    const nbLesTodosImportantes = lesTodos.filter((leTodo) => leTodo.priorite.toLowerCase() === 'importante')
-    const nbLesTodosMoyennes = lesTodos.filter((leTodo) => leTodo.priorite.toLowerCase() === 'moyenne')
-    const nbLesTodosBasses = lesTodos.filter((leTodo) => leTodo.priorite.toLowerCase() === 'basse')
 
     const [error, setError] = useState('')
     const { isConnected } = useContext(Connected);
@@ -41,19 +35,11 @@ function SideBar() {
     return (
         <>
             <aside>
-
                 <div className="menu">
-                    {(isConnected === true) ?
+                    {(isConnected) ?
                         <>
-                            <Item titre={`Mes TODOS (${lesTodos.length})`} redirect="/" icon={faListCheck} />
+                            <Item titre={`Mes TODOS`} redirect="/" icon={faListCheck} />
                             <Item titre="Créer un TODO" redirect="/createTodo" icon={faPlus} />
-
-                            <Item titre="Priorité" icon={faScaleBalanced} onClick={triggerDropdown} />
-                            <ul className={`dropdown ${!enableDropdown ? 'd-none' : ''}`}>
-                                <Item titre={`Importante (${nbLesTodosImportantes.length})`} redirect="/prioritee-importante" />
-                                <Item titre={`Moyenne (${nbLesTodosMoyennes.length})`} redirect="/prioritee-moyenne" />
-                                <Item titre={`Basse (${nbLesTodosBasses.length})`} redirect="/prioritee-basse" />
-                            </ul>
 
                             <div className="bottom">
                                 <Reset setError={setError} />

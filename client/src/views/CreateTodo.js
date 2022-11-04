@@ -3,10 +3,10 @@ import { useState, useContext } from "react"
 import RefreshData from "../components/context/RefreshData"
 
 function Todo() {
-    const updatingData = useContext(RefreshData)
+    const { setRefresh } = useContext(RefreshData)
 
     const [msg, setMsg] = useState({})
-    const [todoVerification, setTodoVerification] = useState({ titre: '', description: '', priorite: 'Moyenne', opened: false })
+    const [todoVerification, setTodoVerification] = useState({ titre: '', description: '', priorite: 'moyenne' })
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -18,12 +18,12 @@ function Todo() {
 
         if (todoVerification.titre !== '') {
             Api.post('/user/todo', todoVerification).then((msg) => {
-                if (msg.data) {
-                    updatingData(prev => prev + 1)
+                if (msg.status === 200) {
+                    setRefresh(prev => prev + 1)
                     setMsg({success: 'TODO ajouté !'})
                 }
             }).catch((error) => {
-                setMsg({error: "Erreur interne"})
+                setMsg({error: error.request.response})
             })
         } else {
             setMsg({error: "Le titre est vide"})
@@ -58,9 +58,9 @@ function Todo() {
                 <div className="mt-3">
                     <label htmlFor="priorite" className="form-label mb-0">Sélectionnez une prioritée</label>
                     <select className="form-control" defaultValue="Moyenne" name="priorite" id="priorite" onChange={handleChange}>
-                        <option value="Importante">Importante</option>
-                        <option value="Moyenne">Moyenne</option>
-                        <option value="Basse">Basse</option>
+                        <option value="importante">Importante</option>
+                        <option value="moyenne">Moyenne</option>
+                        <option value="basse">Basse</option>
                     </select>
                 </div>
 

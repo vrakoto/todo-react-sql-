@@ -1,11 +1,11 @@
 const { sign, verify, decode } = require("jsonwebtoken");
 
-module.exports = {    
+module.exports = {
     forwardAccessWhileConnected(req, res, next) {
         const accessToken = req.cookies["access-token"];
 
         if (accessToken) {
-            res.redirect('/todo')
+            return res.status(403).send("Access forbidden while connected")
         }
         return next();
     },
@@ -22,10 +22,10 @@ module.exports = {
     validateToken(req, res, next) {
         const accessToken = req.cookies["access-token"];
         
-        /* if (!accessToken) {
-            return res.redirect('/connexion')
-        } */
-    
+        if (!accessToken) {
+            return res.status(401).send("Access forbidden")
+        }
+        
         try {
             const validToken = verify(accessToken, "jwtsecretplschange");
             if (validToken) {
@@ -33,7 +33,7 @@ module.exports = {
                 return next();
             }
         } catch (err) {
-            return res.status(400).json({ error: err });
+            return res.status(401).json({ error: err });
         }
     },
 

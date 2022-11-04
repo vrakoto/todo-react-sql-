@@ -1,6 +1,6 @@
 import '../css/main.css'
 import '../css/animation.css'
-import SideBar from './SideBar'
+import SideBar from './SideBar/SideBar'
 
 function Body(props) {
     const { children } = props

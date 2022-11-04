@@ -5,7 +5,6 @@ import Connected from "../components/context/Connected";
 import Input from "../components/Input";
 
 function Connexion() {
-    const navigate = useNavigate()
     const { setIsConnected } = useContext(Connected);
     const [formVerification, setFormVerification] = useState({ identifiant: '', mdp: '' })
 
@@ -20,16 +19,15 @@ function Connexion() {
         e.preventDefault()
 
         if (formVerification.identifiant.trim() !== '' && formVerification.mdp.trim() !== '') {
-            Api.post('/connexion', formVerification).then((msg) => {
+            Api.post('/visitor/connexion', formVerification).then((msg) => {
                 const { success, error } = msg.data
                 if (success) {
-                    setIsConnected(true)
-                    // return navigate('/createTodo')
+                    setIsConnected(success)
                 } else if (error) {
                     setError(error)    
                 }
             }).catch((error) => {
-                if (error) setError('Erreur interne')
+                if (error) setError(error.request.response)
             })
         } else {
             setError("Veuillez remplir tous les champs.")

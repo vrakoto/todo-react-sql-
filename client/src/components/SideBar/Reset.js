@@ -1,28 +1,20 @@
-import '../../css/sidebar.css'
-import { useNavigate } from 'react-router-dom'
+import './sidebar.css'
 import Api from '../Api';
 import { useContext } from 'react';
-import Connected from '../context/Connected';
 import Item from './Item';
-import RefreshData from '../context/RefreshData'
-import Todos from '../context/Todos';
+import Refresh from '../context/RefreshData'
 
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 function Reset({setError}) {
-    const updatingData = useContext(RefreshData)
-    const lesTodos = useContext(Todos)
+    const { setRefresh } = useContext(Refresh)
 
     const reset = async () => {
-        if (lesTodos.length > 0) { // evite le spam inutile par l'utilisateur
-            Api.post('/user/resetTodos').then((msg) => {
-                if (msg.data) {
-                    updatingData(prevState => prevState + 1)
-                }
-            }).catch((error) => {
-                setError("Erreur interne rencontrée lors de la tentative de réinitialisation des TODOS")
-            })
-        }
+        Api.post('/user/resetTodos').then((msg) => {
+            if (msg.status === 200) setRefresh(prev => prev + 1)
+        }).catch((error) => {
+            setError(error.request.response)
+        })
     };
 
     return <Item titre="Réinitialiser TODOS" onClick={reset} icon={faTrash} />

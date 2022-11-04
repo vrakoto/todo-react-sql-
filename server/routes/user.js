@@ -1,41 +1,75 @@
 const express = require('express');
+const { getAuthenticated } = require('../functions/func');
+const Todo = require('../models/Todo');
 const router = express.Router();
 
-router.get('/todos', (req, res) => {
-    return res.send(req.session.todos)
+router.get('/todos', async (req, res) => {
+    const { username } = getAuthenticated(req.cookies["access-token"])
+    const request = {
+        where: {
+            UtilisateurIdentifiant: username
+        },
+        order: [
+            ['id', 'DESC']
+        ]
+    }
+
+    Todo.findAll(request).then((datas) => {
+        if (!datas) return res.send({ error: "Aucun TODO" });
+        return res.send(datas)
+    }).catch((error) => {
+        return res.status(500).send("Erreur interne lors de la récupération des todos")
+    })
 });
 
-router.post('/todo', (req, res) => {
-    req.session.key++
-    let key = req.session.key
+router.post('/todo', async (req, res) => {
+    const { username } = getAuthenticated(req.cookies["access-token"])
+    const leTodo = { titre: req.body.titre, description: req.body.description, priorite: req.body.priorite, UtilisateurIdentifiant: username }
 
-    const leTodo = { id: key, titre: req.body.titre, description: req.body.description, priorite: req.body.priorite }
-    const lesTodos = req.session.todos
-
-    lesTodos.push(leTodo)
-    return res.send('ok')
+    Todo.create(leTodo).then((msg) => {
+        if (msg) return res.send("Todo créé !")
+    }).catch((error) => {
+        return res.status(500).send("Echec lors de la tentative de création de votre todo")
+    })
 });
 
-router.post('/resetTodos', (req, res) => {
-    req.session.todos = []
-    return res.send('ok')
+router.post('/resetTodos', async (req, res) => {
+    const { username } = getAuthenticated(req.cookies["access-token"])
+    const request = {
+        where: { UtilisateurIdentifiant: username }
+    }
+    
+    Todo.destroy(request).then((msg) => {
+        if (msg) return res.send('ok')
+    }).catch((e) => {
+        return res.status(500).send("Echec lors de la suppression de tous vos todos")
+    })
 });
 
-router.post('/editTodo', (req, res) => {
-    const { id, titre, description, priorite } = req.body
+router.post('/editTodo', async (req, res) => {
+    const { id, champs } = req.body
+    const selector = { where: { id } }
 
-    req.session.todos.forEach(leTodo => {
-        if (leTodo.id === id) {
-            console.log(req.session.todos);
-        }
-    });
+    Todo.update(champs, selector).then((msg) => {
+        if (msg) return res.send('ok')
+    }).catch((error) => {
+        return res.status(500).send("Echec lors de la modification du todo")
+    })
 });
 
 router.post('/deleteTodo', (req, res) => {
+    const { username } = getAuthenticated(req.cookies["access-token"])
     const { leTodo } = req.body
-    req.session.todos = req.session.todos.filter((todo, key) => key !== leTodo);
 
-    return res.send('ok')
+    const request = {
+        where: { UtilisateurIdentifiant: username, id: leTodo }
+    }
+
+    Todo.destroy(request).then((msg) => {
+        if (msg) return res.send('ok')
+    }).catch((error) => {
+        return res.status(500).send("Echec lors de la suppression du todo")
+    })
 });
 
 router.post('/logout', (req, res) => {

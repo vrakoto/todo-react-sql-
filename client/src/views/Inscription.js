@@ -1,6 +1,7 @@
 import Api from "../components/Api"
 import { useState } from "react"
 import Input from "../components/Input"
+import {NavLink} from "react-router-dom"
 
 function Todo() {
     const [success, setSuccess] = useState('')
@@ -30,15 +31,12 @@ function Todo() {
         }
 
         if (Object.keys(errors).length === 0) {
-            Api.post('/inscription', formVerification).then((msg) => {
-                const { success, error } = msg.data
-                if (success) {
+            Api.post('/visitor/inscription', formVerification).then((msg) => {
+                if (msg.status === 200) {
                     setSuccess("Compte créé !")
-                } else if (error) {
-                    setError(error)
                 }
             }).catch((error) => {
-                setError("Une problème interne a été rencontré.")
+                setError(error.request.response)
             })
         } else {
             setErrorFormField(errors)
@@ -63,7 +61,7 @@ function Todo() {
                 <Input type="text" variable="identifiant" error={errorFormField.identifiant} placeholder="Insérez un identifiant" func={handleChange} />
                 <Input type="password" variable="mdp" error={errorFormField.mdp} placeholder="Insérez un mot de passe" func={handleChange} />
                 <Input type="password" variable="mdp_c" error={errorFormField.mdp_c} placeholder="Confirmez le mot de passe" func={handleChange} />
-                <button type="submit" className="btn btn-success">Valider</button>
+                {success ? <NavLink to="/" className="btn btn-primary">Se connecter</NavLink> : <button type="submit" className="btn btn-success">Valider</button>}
             </form>
         </div>
     )
