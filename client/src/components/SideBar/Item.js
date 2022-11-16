@@ -9,9 +9,9 @@ function Item({ titre, redirect = null, icon = null, onClick = null }) {
     return (
         <>
             { redirect !== null ? (
-                <NavLink to={redirect} className={`item ${(isActive) => (isActive ? 'active' : '')}`}>{setIcon} {titre}</NavLink>
+                <NavLink to={redirect} className={`navbar-item ${({isActive}) => (isActive ? 'active' : '')}`} end>{setIcon} {titre}</NavLink>
             ) :
-                <div className="item" onClick={onClick}>{setIcon} {titre}</div>
+                <div className="navbar-item" onClick={onClick}>{setIcon} {titre}</div>
             }
         </>
     )

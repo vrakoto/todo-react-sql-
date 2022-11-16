@@ -1,17 +1,21 @@
 import Api from "../components/Api"
 import { useState, useContext } from "react"
-import { useNavigate } from "react-router-dom"
+
 import Connected from "../components/context/Connected";
 import Input from "../components/Input";
+import Success from "../components/context/Success";
+import RefreshData from "../components/context/RefreshData";
 
 function Connexion() {
+    const { setRefresh } = useContext(RefreshData)
+    const { setSuccess } = useContext(Success)
     const { setIsConnected } = useContext(Connected);
     const [formVerification, setFormVerification] = useState({ identifiant: '', mdp: '' })
 
     const [error, setError] = useState('')
 
     const handleChange = (e) => {
-        const {name, value} = e.target
+        const { name, value } = e.target
         setFormVerification({ ...formVerification, [name]: value })
     }
 
@@ -23,8 +27,10 @@ function Connexion() {
                 const { success, error } = msg.data
                 if (success) {
                     setIsConnected(success)
+                    setRefresh(prev => prev + 1)
+                    setSuccess(`Bienvenue ${success} !`)
                 } else if (error) {
-                    setError(error)    
+                    setError(error)
                 }
             }).catch((error) => {
                 if (error) setError(error.request.response)
@@ -37,9 +43,7 @@ function Connexion() {
     return (
         <div className="container mt-5">
 
-            {error ? <div className="alert alert-danger">{error}</div> : ''}
-
-            <h1 className="titlePage">Connectez-vous temporairement</h1>
+            <h1 className="titlePage">{error ? "Erreur formulaire" : "Connectez-vous temporairement"}</h1>
 
             <form className="customForm form-group" method="post" onSubmit={handleSubmit} >
                 <Input type="text" variable="identifiant" error={error.identifiant} placeholder="Insérez votre identifiant" func={handleChange} isFirst={true} />

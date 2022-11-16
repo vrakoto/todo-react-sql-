@@ -26,7 +26,7 @@ Utilisateur.hasMany(Todo)
 // Utilisateur.belongsToMany(Produit, { through: 'panier_produits' })
 // Todo.belongsToMany(Panier, { through: 'panier_produits' })
 
-async function generate() {
+/* async function generate() {
     await sequelize.sync({alter: true});
 }
 
@@ -34,6 +34,6 @@ generate().then(() => {
     console.log("Request done.");
 }).catch((err) => {
     console.log("ERR: ", err);
-})
+}) */
 
 module.exports = Utilisateur;

@@ -1,11 +1,14 @@
-import Api from "../components/Api"
 import { useState, useContext } from "react"
+
+import Api from "../components/Api"
+
+import Success from "../components/context/Success"
 import RefreshData from "../components/context/RefreshData"
 
 function Todo() {
+    const { setSuccess } = useContext(Success)
     const { setRefresh } = useContext(RefreshData)
 
-    const [msg, setMsg] = useState({})
     const [todoVerification, setTodoVerification] = useState({ titre: '', description: '', priorite: 'moyenne' })
 
     const handleChange = (e) => {
@@ -20,30 +23,25 @@ function Todo() {
             Api.post('/user/todo', todoVerification).then((msg) => {
                 if (msg.status === 200) {
                     setRefresh(prev => prev + 1)
-                    setMsg({success: 'TODO ajouté !'})
+                    setSuccess('TODO créé !')
                 }
             }).catch((error) => {
-                setMsg({error: error.request.response})
+                // setMsg({ title: "Erreur 500 Serveur", error: error.request.response })
             })
         } else {
-            setMsg({error: "Le titre est vide"})
+            // setMsg({ title: "Erreur Formulaire", error: "Le titre est vide" })
         }
     }
 
     return (
         <div className="container mt-5">
 
-            {msg.error ? (
+            {/* {msg.error ? (
                 <div className="alert alert-danger">
                     {msg.error}
                 </div>
 
-            ) : msg.success ? (
-                <div className="alert alert-success">
-                    {msg.success}
-                </div>
-
-            ) : ''}
+            )} */}
 
             <h1 className="titlePage">Créer un TODO</h1>
 

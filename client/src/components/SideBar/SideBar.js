@@ -11,18 +11,10 @@ import Reset from './Reset';
 import Deconnexion from './Deconnexion';
 
 function SideBar() {
-    const [enableDropdown, setEnableDropdown] = useState(false)
+    const [fixedTop, setFixedTop] = useState(false)
 
     const [error, setError] = useState('')
     const { isConnected } = useContext(Connected);
-
-    const triggerDropdown = () => {
-        if (enableDropdown) {
-            setEnableDropdown(false)
-        } else {
-            setEnableDropdown(true)
-        }
-    }
 
     useEffect(() => {
         if (error !== '') {
@@ -32,34 +24,37 @@ function SideBar() {
         }
     }, [error])
 
+    const fixingTop = e => {
+        if (window.scrollY > 10) {
+            setFixedTop(true)
+        } else {
+            setFixedTop(false)
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('scroll', fixingTop)
+    }, [])
+
     return (
-        <>
-            <aside>
-                <div className="menu">
-                    {(isConnected) ?
-                        <>
-                            <Item titre={`Mes TODOS`} redirect="/" icon={faListCheck} />
-                            <Item titre="Créer un TODO" redirect="/createTodo" icon={faPlus} />
-
-                            <div className="bottom">
-                                <Reset setError={setError} />
-                                <Deconnexion setError={setError} />
-                                <i className="mt-5">{`Connecté en tant que : ${isConnected}`}</i>
-                            </div>
-                        </>
-                        :
-                        <>
-                            <Item titre="Connexion" redirect="/" />
-                            <Item titre="Inscription" redirect="/inscription" />
-                        </>
-                    }
-                </div>
-
-                {error ? (
-                    <div className="mt-3 alert alert-danger text-center">{error}</div>
-                ) : ''}
-            </aside>
-        </>
+        <div className="text-center">
+            <nav className={fixedTop ? 'fixed-top mt-0' : ''}>
+                {(isConnected) ?
+                    <>
+                        {/* <a>{`Connecté en tant que : ${isConnected}`}</a> */}
+                        <Item titre="Créer un TODO" redirect="/createTodo" icon={faPlus} />
+                        <Item titre={`Mes TODOS`} redirect="/" icon={faListCheck} />
+                        <Reset setError={setError} />
+                        <Deconnexion setError={setError} />
+                    </>
+                    :
+                    <>
+                        <Item titre="Connexion" redirect="/" />
+                        <Item titre="Inscription" redirect="/inscription" />
+                    </>
+                }
+            </nav>
+        </div>
     )
 }
 

@@ -1,11 +1,15 @@
 import './todo.css'
-import { useState } from "react"
+import { useContext, useState } from "react"
 import DeleteTodo from './DeleteTodo'
 import Input from '../Input'
 import Api from '../Api'
+import Success from '../context/Success'
+import RefreshData from '../context/RefreshData'
 
 function LeTodo({ leTodo, setError }) {
     const { id, titre, description, priorite } = leTodo
+    const { setSuccess } = useContext(Success)
+    const { setRefresh } = useContext(RefreshData)
     const [enableEdit, setEnableEdit] = useState(false)
 
     const [editedValue, setEditedValue] = useState({})
@@ -21,13 +25,11 @@ function LeTodo({ leTodo, setError }) {
 
     const handleVerification = async () => {
         Api.post('/user/editTodo', {id, champs: editedValue}).then((msg) => {
-            const { success, error } = msg.data
-            if (success) {
+            if (msg.data) {
                 setEditedValue({})
                 setEnableEdit(false)
-                console.log("edited !");
-            } else if (error) {
-                console.log(error);
+                setRefresh(prev => prev + 1)
+                setSuccess('TODO modifié !')
             }
         }).catch((e) => {
             console.log(e);
